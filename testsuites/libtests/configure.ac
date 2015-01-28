@@ -1,0 +1,153 @@
+## Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.69])
+AC_INIT([rtems-c-src-tests-libtests],[_RTEMS_VERSION],[https://devel.rtems.org/newticket])
+AC_CONFIG_SRCDIR([cpuuse])
+AC_CONFIG_HEADER([config.h])
+RTEMS_TOP([../..],[..])
+
+RTEMS_CANONICAL_TARGET_CPU
+
+AM_INIT_AUTOMAKE([no-define foreign 1.12.2])
+AM_MAINTAINER_MODE
+
+RTEMS_ENABLE_CXX
+
+RTEMS_ENV_RTEMSBSP
+RTEMS_CHECK_RTEMS_TEST_NO_PAUSE
+
+RTEMS_PROJECT_ROOT
+
+RTEMS_PROG_CC_FOR_TARGET
+
+RTEMS_PROG_CXX_FOR_TARGET
+
+RTEMS_CANONICALIZE_TOOLS
+
+RTEMS_CHECK_CUSTOM_BSP(RTEMS_BSP)
+RTEMS_CHECK_CXX(RTEMS_BSP)
+RTEMS_CHECK_CPUOPTS([RTEMS_NETWORKING])
+RTEMS_CHECK_CPUOPTS([RTEMS_POSIX_API])
+
+AC_PROG_LN_S
+AC_PATH_PROG([PAX],[pax])
+
+AC_CHECK_HEADERS([complex.h])
+
+AM_CONDITIONAL(TARTESTS,test "$as_ln_s" = "ln -s" && test -n "$PAX")
+
+AM_CONDITIONAL(HAS_CXX,test "$rtems_cv_HAS_CPLUSPLUS" = "yes")
+AM_CONDITIONAL([HAS_COMPLEX],[test "$ac_cv_header_complex_h" = yes])
+AM_CONDITIONAL(NETTESTS,test "$rtems_cv_RTEMS_NETWORKING" = "yes")
+AM_CONDITIONAL(HAS_POSIX,test x"${rtems_cv_RTEMS_POSIX_API}" = x"yes")
+
+# Must match the list in cpukit.
+AC_MSG_CHECKING([whether CPU supports libdl])
+case $RTEMS_CPU in
+  arm | bfin | h8300 | i386 | lm32 | m32r | m68k | mips | \
+  moxie | powerpc | sparc | v850)
+   TEST_LIBDL=yes ;;
+  *)
+   TEST_LIBDL=no ;;
+esac
+AC_MSG_RESULT([$TEST_LIBDL])
+
+AS_IF([test x"$TEST_LIBDL" = x"yes"],[
+  AC_CHECK_PROG(RTEMS_LD_CHECK,rtems-ld,yes)
+  if test x"$RTEMS_LD_CHECK" != x"yes" ; then
+    TEST_LIBDL=no
+  fi
+  AC_CHECK_PROG(RTEMS_SYMS_CHECK,rtems-syms,yes)
+  if test x"$RTEMS_SYMS_CHECK" != x"yes" ; then
+    TEST_LIBDL=no
+  fi
+])
+
+AM_CONDITIONAL(DLTESTS,[test x"$TEST_LIBDL" = x"yes"])
+
+# Explicitly list all Makefiles here
+AC_CONFIG_FILES([Makefile
+defaultconfig01/Makefile
+pwdgrp02/Makefile
+shell01/Makefile
+pwdgrp01/Makefile
+crypt01/Makefile
+sha/Makefile
+i2c01/Makefile
+newlib01/Makefile
+block17/Makefile
+exit02/Makefile
+exit01/Makefile
+utf8proc01/Makefile
+md501/Makefile
+sparsedisk01/Makefile
+block16/Makefile
+mghttpd01/Makefile
+block15/Makefile
+block14/Makefile
+block13/Makefile
+rbheap01/Makefile
+syscall01/Makefile
+flashdisk01/Makefile
+block01/Makefile
+block02/Makefile
+block03/Makefile
+block04/Makefile
+block05/Makefile
+block06/Makefile
+block07/Makefile
+block08/Makefile
+block09/Makefile
+block10/Makefile
+block11/Makefile
+block12/Makefile
+bspcmdline01/Makefile
+cpuuse/Makefile
+devfs01/Makefile
+devfs02/Makefile
+devfs03/Makefile
+devfs04/Makefile
+deviceio01/Makefile
+devnullfatal01/Makefile
+dl01/Makefile
+dl02/Makefile
+dumpbuf01/Makefile
+ftp01/Makefile
+gxx01/Makefile
+heapwalk/Makefile
+malloctest/Makefile
+malloc02/Makefile
+malloc03/Makefile
+malloc04/Makefile
+monitor/Makefile
+monitor02/Makefile
+mouse01/Makefile
+uid01/Makefile
+putenvtest/Makefile
+rtems++/Makefile
+rtmonuse/Makefile
+stackchk/Makefile
+stackchk01/Makefile
+stringto01/Makefile
+tar01/Makefile
+tar02/Makefile
+tar03/Makefile
+termios/Makefile
+termios01/Makefile
+termios02/Makefile
+termios03/Makefile
+termios04/Makefile
+termios05/Makefile
+termios06/Makefile
+termios07/Makefile
+termios08/Makefile
+top/Makefile
+tztest/Makefile
+capture01/Makefile
+POSIX/Makefile
+math/Makefile
+mathf/Makefile
+mathl/Makefile
+complex/Makefile
+])
+AC_OUTPUT

@@ -1,0 +1,62 @@
+/**
+ * @file
+ *
+ * @brief IMFS Create a New Symbolic Link Node
+ * @ingroup IMFS
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2009.
+ *  On-Line Applications Research Corporation (OAR).
+ *
+ *  The license and distribution terms for this file may be
+ *  found in the file LICENSE in this distribution or at
+ *  http://www.rtems.org/license/LICENSE.
+ */
+
+#if HAVE_CONFIG_H
+  #include "config.h"
+#endif
+
+#include "imfs.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+int IMFS_symlink(
+  const rtems_filesystem_location_info_t *parentloc,
+  const char *name,
+  size_t namelen,
+  const char *target
+)
+{
+  char         *dup_target;
+  IMFS_jnode_t *new_node;
+
+  /*
+   * Duplicate link name
+   */
+  dup_target = strdup(target);
+  if (dup_target == NULL) {
+    rtems_set_errno_and_return_minus_one(ENOMEM);
+  }
+
+  /*
+   *  Create a new link node.
+   */
+  new_node = IMFS_create_node(
+    parentloc,
+    IMFS_SYM_LINK,
+    name,
+    namelen,
+    ( S_IFLNK | ( S_IRWXU | S_IRWXG | S_IRWXO )),
+    dup_target
+  );
+
+  if (new_node == NULL) {
+    free(dup_target);
+    rtems_set_errno_and_return_minus_one(ENOMEM);
+  }
+
+  return 0;
+}

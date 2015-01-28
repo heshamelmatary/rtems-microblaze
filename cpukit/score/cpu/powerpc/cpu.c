@@ -1,0 +1,104 @@
+/**
+ *  @file
+ *
+ *  @brief PowerPC Dependent Source
+ */
+
+/*
+ *  The license and distribution terms for this file may be
+ *  found in the file LICENSE in this distribution or at
+ *  http://www.rtems.org/license/LICENSE.
+ */
+
+/*
+ * For now, this file is just a stub to work around
+ * structural deficiencies of the powerpc port.
+ */
+
+#ifdef HAVE_CONFIG_H
+  #include "config.h"
+#endif
+
+#include <rtems/system.h>
+#include <rtems/score/cpu.h>
+
+#define PPC_ASSERT_OFFSET(field, off) \
+  RTEMS_STATIC_ASSERT( \
+    offsetof(ppc_context, field) + PPC_DEFAULT_CACHE_LINE_SIZE \
+      == PPC_CONTEXT_OFFSET_ ## off, \
+    ppc_context_offset_ ## field \
+  )
+
+PPC_ASSERT_OFFSET(gpr1, GPR1);
+PPC_ASSERT_OFFSET(msr, MSR);
+PPC_ASSERT_OFFSET(lr, LR);
+PPC_ASSERT_OFFSET(cr, CR);
+PPC_ASSERT_OFFSET(gpr14, GPR14);
+PPC_ASSERT_OFFSET(gpr15, GPR15);
+PPC_ASSERT_OFFSET(gpr16, GPR16);
+PPC_ASSERT_OFFSET(gpr17, GPR17);
+PPC_ASSERT_OFFSET(gpr18, GPR18);
+PPC_ASSERT_OFFSET(gpr19, GPR19);
+PPC_ASSERT_OFFSET(gpr20, GPR20);
+PPC_ASSERT_OFFSET(gpr21, GPR21);
+PPC_ASSERT_OFFSET(gpr22, GPR22);
+PPC_ASSERT_OFFSET(gpr23, GPR23);
+PPC_ASSERT_OFFSET(gpr24, GPR24);
+PPC_ASSERT_OFFSET(gpr25, GPR25);
+PPC_ASSERT_OFFSET(gpr26, GPR26);
+PPC_ASSERT_OFFSET(gpr27, GPR27);
+PPC_ASSERT_OFFSET(gpr28, GPR28);
+PPC_ASSERT_OFFSET(gpr29, GPR29);
+PPC_ASSERT_OFFSET(gpr30, GPR30);
+PPC_ASSERT_OFFSET(gpr31, GPR31);
+PPC_ASSERT_OFFSET(gpr2, GPR2);
+
+#ifdef RTEMS_SMP
+  PPC_ASSERT_OFFSET(is_executing, IS_EXECUTING);
+#endif
+
+#ifdef PPC_MULTILIB_ALTIVEC
+  RTEMS_STATIC_ASSERT(
+    PPC_CONTEXT_OFFSET_V20 % 16 == 0,
+    ppc_context_altivec
+  );
+  PPC_ASSERT_OFFSET(v20, V20);
+  PPC_ASSERT_OFFSET(v21, V21);
+  PPC_ASSERT_OFFSET(v22, V22);
+  PPC_ASSERT_OFFSET(v23, V23);
+  PPC_ASSERT_OFFSET(v24, V24);
+  PPC_ASSERT_OFFSET(v25, V25);
+  PPC_ASSERT_OFFSET(v26, V26);
+  PPC_ASSERT_OFFSET(v27, V27);
+  PPC_ASSERT_OFFSET(v28, V28);
+  PPC_ASSERT_OFFSET(v29, V29);
+  PPC_ASSERT_OFFSET(v30, V30);
+  PPC_ASSERT_OFFSET(v31, V31);
+  PPC_ASSERT_OFFSET(vrsave, VRSAVE);
+#endif
+
+#ifdef PPC_MULTILIB_FPU
+  PPC_ASSERT_OFFSET(f14, F14);
+  PPC_ASSERT_OFFSET(f15, F15);
+  PPC_ASSERT_OFFSET(f16, F16);
+  PPC_ASSERT_OFFSET(f17, F17);
+  PPC_ASSERT_OFFSET(f18, F18);
+  PPC_ASSERT_OFFSET(f19, F19);
+  PPC_ASSERT_OFFSET(f20, F20);
+  PPC_ASSERT_OFFSET(f21, F21);
+  PPC_ASSERT_OFFSET(f22, F22);
+  PPC_ASSERT_OFFSET(f23, F23);
+  PPC_ASSERT_OFFSET(f24, F24);
+  PPC_ASSERT_OFFSET(f25, F25);
+  PPC_ASSERT_OFFSET(f26, F26);
+  PPC_ASSERT_OFFSET(f27, F27);
+  PPC_ASSERT_OFFSET(f28, F28);
+  PPC_ASSERT_OFFSET(f29, F29);
+  PPC_ASSERT_OFFSET(f30, F30);
+  PPC_ASSERT_OFFSET(f31, F31);
+#endif
+
+RTEMS_STATIC_ASSERT(
+  sizeof(Context_Control) % PPC_DEFAULT_CACHE_LINE_SIZE == 0,
+  ppc_context_size
+);
