@@ -405,6 +405,7 @@ score/cpu/lm32/Makefile
 score/cpu/m68k/Makefile
 score/cpu/m32c/Makefile
 score/cpu/m32r/Makefile
+score/cpu/microblaze/Makefile
 score/cpu/mips/Makefile
 score/cpu/moxie/Makefile
 score/cpu/nios2/Makefile

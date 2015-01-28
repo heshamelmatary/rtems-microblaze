@@ -19,6 +19,7 @@ _RTEMS_CPU_SUBDIR([lm32],[$1]);;
 _RTEMS_CPU_SUBDIR([m32c],[$1]);;
 _RTEMS_CPU_SUBDIR([m32r],[$1]);;
 _RTEMS_CPU_SUBDIR([m68k],[$1]);;
+_RTEMS_CPU_SUBDIR([microblaze],[$1]);;
 _RTEMS_CPU_SUBDIR([mips],[$1]);;
 _RTEMS_CPU_SUBDIR([moxie],[$1]);;
 _RTEMS_CPU_SUBDIR([nios2],[$1]);;
