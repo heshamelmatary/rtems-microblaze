@@ -1,0 +1,205 @@
+/* Default linker script, for normal executables */
+OUTPUT_FORMAT("elf32-microblaze", "",
+	      "")
+
+ENTRY (_start)
+_TEXT_START_ADDR = DEFINED(_TEXT_START_ADDR) ? _TEXT_START_ADDR : 0x88000000;
+
+MEMORY
+  {
+      BRAM     (AIW) : ORIGIN = 0x00000000, LENGTH = 0x10000
+      RAM   : ORIGIN = 0x88000000, LENGTH = 0x08000000
+  }
+
+REGION_ALIAS ("REGION_START", BRAM);
+REGION_ALIAS ("REGION_VECTOR", BRAM);
+REGION_ALIAS ("REGION_TEXT", RAM);
+REGION_ALIAS ("REGION_TEXT_LOAD", RAM);
+REGION_ALIAS ("REGION_RODATA", RAM);
+REGION_ALIAS ("REGION_RODATA_LOAD", RAM);
+REGION_ALIAS ("REGION_DATA", RAM);
+REGION_ALIAS ("REGION_DATA_LOAD", RAM);
+REGION_ALIAS ("REGION_FAST_DATA", RAM);
+REGION_ALIAS ("REGION_FAST_DATA_LOAD", RAM);
+REGION_ALIAS ("REGION_BSS", RAM);
+REGION_ALIAS ("REGION_WORK", RAM);
+REGION_ALIAS ("REGION_STACK", RAM);
+
+/*
+ * Declare some sizes.
+ */
+RamBase = DEFINED(RamBase) ? RamBase : 0x000000;
+RamSize = DEFINED(RamSize) ? RamSize : 0x800000;
+HeapSize = DEFINED(HeapSize) ? HeapSize : 0x0;
+StackSize = DEFINED(StackSize) ? StackSize : 0x400;
+
+SECTIONS
+{
+  .vectors.reset 0x0 : { KEEP (*(.vectors.reset)) } > REGION_VECTOR AT > REGION_VECTOR
+  .vectors.sw_exception 0x8 : { KEEP (*(.vectors.sw_exception)) } > REGION_VECTOR AT > REGION_VECTOR
+  .vectors.interrupt 0x10 : { KEEP (*(.vectors.interrupt)) } > REGION_VECTOR AT > REGION_VECTOR
+  .vectors.debug_sw_break 0x18 : { KEEP (*(.vectors.debug_sw_break)) } > REGION_VECTOR AT > REGION_VECTOR
+  .vectors.hw_exception 0x20 : { KEEP (*(.vectors.hw_exception)) } > REGION_VECTOR AT > REGION_VECTOR
+  . = _TEXT_START_ADDR;
+   _ftext  =  .;
+  .text : {
+    *(.text)
+    *(.text.*)
+    *(.gnu.linkonce.t.*)
+  } > REGION_TEXT AT > REGION_TEXT_LOAD
+   _etext  =  .;
+  .init : { KEEP (*(.init))	} =0
+  .fini : { KEEP (*(.fini))	} =0
+  PROVIDE (__CTOR_LIST__ = .);
+  PROVIDE (___CTOR_LIST__ = .);
+  .ctors   :
+  {
+    /* gcc uses crtbegin.o to find the start of
+       the constructors, so we make sure it is
+       first.  Because this is a wildcard, it
+       doesn't matter if the user does not
+       actually link against crtbegin.o; the
+       linker won't look for a file to match a
+       wildcard.  The wildcard also means that it
+       doesn't matter which directory crtbegin.o
+       is in.  */
+    KEEP (*crtbegin.o(.ctors))
+    /* We don't want to include the .ctor section from
+       from the crtend.o file until after the sorted ctors.
+       The .ctor section from the crtend file contains the
+       end of ctors marker and it must be last */
+    KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+    KEEP (*(SORT(.ctors.*)))
+    KEEP (*(.ctors))
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  PROVIDE (__CTOR_END__ = .);
+  PROVIDE (___CTOR_END__ = .);
+  PROVIDE (__DTOR_LIST__ = .);
+  PROVIDE (___DTOR_LIST__ = .);
+   .dtors         :
+  {
+    KEEP (*crtbegin.o(.dtors))
+    KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+    KEEP (*(SORT(.dtors.*)))
+    KEEP (*(.dtors))
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  PROVIDE (__DTOR_END__ = .);
+  PROVIDE (___DTOR_END__ = .);
+   . = ALIGN(4);
+    _frodata = . ;
+  .rodata : {
+    *(.rodata)
+    *(.rodata.*)
+    *(.gnu.linkonce.r.*)
+    CONSTRUCTORS; /* Is this needed? */
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+   _erodata = .;
+  /* Alignments by 8 to ensure that _SDA2_BASE_ on a word boundary */
+  /* Note that .sdata2 and .sbss2 must be contiguous */
+  . = ALIGN(8);
+   _ssrw = .;
+  .sdata2 : {
+    *(.sdata2)
+    *(.sdata2.*)
+    *(.gnu.linkonce.s2.*)
+  }
+  . = ALIGN(4);
+  .sbss2 : {
+    PROVIDE (__sbss2_start = .);
+    *(.sbss2)
+    *(.sbss2.*)
+    *(.gnu.linkonce.sb2.*)
+    PROVIDE (__sbss2_end = .);
+  }
+  . = ALIGN(8);
+   _essrw = .;
+   _ssrw_size = _essrw - _ssrw;
+   PROVIDE (_SDA2_BASE_ = _ssrw + (_ssrw_size / 2 ));
+   . = ALIGN(4);
+   _fdata = .;
+  .data : {
+    *(.data)
+    *(.gnu.linkonce.d.*)
+    CONSTRUCTORS; /* Is this needed? */
+  }
+   _edata = . ;
+   /* Added to handle pic code */
+  .got : {
+    *(.got)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  .got1 : {
+    *(.got1)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  .got2 : {
+    *(.got2)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  /* Added by Sathya to handle C++ exceptions */
+  .eh_frame : {
+    *(.eh_frame)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  .jcr : {
+    *(.jcr)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  .gcc_except_table : {
+    *(.gcc_except_table)
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+  /* Alignments by 8 to ensure that _SDA_BASE_ on a word boundary */
+  /* Note that .sdata and .sbss must be contiguous */
+  . = ALIGN(8);
+   _ssro = .;
+  .sdata : {
+    *(.sdata)
+    *(.sdata.*)
+    *(.gnu.linkonce.s.*)
+  }
+  . = ALIGN(4);
+  .sbss : {
+    PROVIDE (__sbss_start = .);
+    *(.sbss)
+    *(.sbss.*)
+    *(.gnu.linkonce.sb.*)
+    PROVIDE (__sbss_end = .);
+  }
+  . = ALIGN(8);
+   _essro = .;
+   _ssro_size = _essro - _ssro;
+  PROVIDE (_SDA_BASE_ = _ssro + (_ssro_size / 2 ));
+   . = ALIGN(4);
+   _fbss = .;
+  .bss : {
+    PROVIDE (__bss_start = .);
+    *(.bss)
+    *(.bss.*)
+    *(.gnu.linkonce.b.*)
+    *(COMMON)
+    . = ALIGN(4);
+    PROVIDE (__bss_end = .);
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
+   . = ALIGN(4);
+  .stack : {
+     _stack_end = .;
+     . += StackSize;
+     . = ALIGN(8);
+     _stack = .;
+     _end = .;
+  } > REGION_DATA AT > REGION_DATA_LOAD
+  .tdata : ALIGN_WITH_INPUT {
+               _TLS_Data_begin = .;
+               *(.tdata .tdata.* .gnu.linkonce.td.*)
+               _TLS_Data_end = .;
+       } > REGION_RODATA AT > REGION_RODATA_LOAD
+  .tbss : ALIGN_WITH_INPUT {
+               _TLS_BSS_begin = .;
+               *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon)
+               _TLS_BSS_end = .;
+       } > REGION_RODATA AT > REGION_RODATA_LOAD
+       _TLS_Data_size = _TLS_Data_end - _TLS_Data_begin;
+       _TLS_Data_begin = _TLS_Data_size != 0 ? _TLS_Data_begin : _TLS_BSS_begin;
+       _TLS_Data_end = _TLS_Data_size != 0 ? _TLS_Data_end : _TLS_BSS_begin;
+       _TLS_BSS_size = _TLS_BSS_end - _TLS_BSS_begin;
+       _TLS_Size = _TLS_BSS_end - _TLS_Data_begin;
+       _TLS_Alignment = MAX (ALIGNOF (.tdata), ALIGNOF (.tbss));
+       
+  . = ALIGN(8);
+  PROVIDE (WorkAreaBase = .);
+}
