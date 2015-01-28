@@ -799,43 +799,32 @@ uint32_t   _CPU_ISR_Get_level( void );
 
 /* end of ISR handler macros */
 
-/* Context handler macros */
-
 /**
- *  @ingroup CPUContext
- *  Initialize the context to a state suitable for starting a
- *  task after a context restore operation.  Generally, this
- *  involves:
+ * @brief Initializes the CPU context.
  *
- *     - setting a starting address
- *     - preparing the stack
- *     - preparing the stack and frame pointers
- *     - setting the proper interrupt level in the context
- *     - initializing the floating point context
+ * The following steps are performed:
+ *  - setting a starting address
+ *  - preparing the stack
+ *  - preparing the stack and frame pointers
+ *  - setting the proper interrupt level in the context
  *
- *  This routine generally does not set any unnecessary register
- *  in the context.  The state of the "general data" registers is
- *  undefined at task start time.
- *
- *  @param[in] _the_context is the context structure to be initialized
- *  @param[in] _stack_base is the lowest physical address of this task's stack
- *  @param[in] _size is the size of this task's stack
- *  @param[in] _isr is the interrupt disable level
- *  @param[in] _entry_point is the thread's entry point.  This is
- *         always @a _Thread_Handler
- *  @param[in] _is_fp is TRUE if the thread is to be a floating
- *        point thread.  This is typically only used on CPUs where the
- *        FPU may be easily disabled by software such as on the SPARC
- *        where the PSR contains an enable FPU bit.
- *
- *  Port Specific Information:
- *
- *  XXX document implementation including references if appropriate
+ * @param[in] context points to the context area
+ * @param[in] stack_area_begin is the low address of the allocated stack area
+ * @param[in] stack_area_size is the size of the stack area in bytes
+ * @param[in] new_level is the interrupt level for the task
+ * @param[in] entry_point is the task's entry point
+ * @param[in] is_fp is set to @c true if the task is a floating point task
+ * @param[in] tls_area is the thread-local storage (TLS) area
  */
-#define _CPU_Context_Initialize( _the_context, _stack_base, _size, \
-                                 _isr, _entry_point, _is_fp ) \
-  { \
-  }
+void _CPU_Context_Initialize(
+  Context_Control *context,
+  void *stack_area_begin,
+  size_t stack_area_size,
+  uint32_t new_level,
+  void (*entry_point)( void ),
+  bool is_fp,
+  void *tls_area
+);
 
 /**
  *  This routine is responsible for somehow restarting the currently
@@ -916,9 +905,9 @@ uint32_t   _CPU_ISR_Get_level( void );
  *
  *  XXX document implementation including references if appropriate
  */
-#define _CPU_Fatal_halt( _error ) \
-  { \
-  }
+#define _CPU_Fatal_halt(_source, _error ) \
+        printk("Fatal Error %d.%d Halted\n",_source, _error); \
+        for(;;)
 
 /* end of Fatal Error manager macros */
 
@@ -1058,6 +1047,21 @@ uint32_t   _CPU_ISR_Get_level( void );
   (_priority)
 
 #endif
+
+#define CPU_TIMESTAMP_USE_STRUCT_TIMESPEC FALSE
+#define CPU_TIMESTAMP_USE_INT64 TRUE
+#define CPU_TIMESTAMP_USE_INT64_INLINE FALSE
+
+typedef struct {
+/* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
+
+#define CPU_SIZEOF_POINTER 4
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
+typedef struct {
+  uint32_t r[32];
+} CPU_Exception_frame;
 
 /* end of Priority handler macros */
 
@@ -1255,6 +1259,15 @@ static inline uint32_t CPU_swap_u32(
  */
 #define CPU_swap_u16( value ) \
   (((value&0xff) << 8) | ((value >> 8)&0xff))
+
+typedef uint32_t CPU_Counter_ticks;
+
+CPU_Counter_ticks _CPU_Counter_read( void );
+
+CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+);
 
 #ifdef __cplusplus
 }
