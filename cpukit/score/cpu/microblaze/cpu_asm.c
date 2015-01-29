@@ -76,41 +76,6 @@ void _CPU_Context_restore_fp(
 {
 }
 
-/*  _CPU_Context_switch
- *
- *  This routine performs a normal non-FP context switch.
- *
- *  NO_CPU Specific Information:
- *
- *  XXX document implementation including references if appropriate
- */
-
-void _CPU_Context_switch(
-  Context_Control  *run,
-  Context_Control  *heir
-)
-{
-}
-
-/*
- *  _CPU_Context_restore
- *
- *  This routine is generally used only to restart self in an
- *  efficient manner.  It may simply be a label in _CPU_Context_switch.
- *
- *  NOTE: May be unnecessary to reload some registers.
- *
- *  NO_CPU Specific Information:
- *
- *  XXX document implementation including references if appropriate
- */
-
-void _CPU_Context_restore(
-  Context_Control *new_context
-)
-{
-}
-
 /*  void __ISR_Handler()
  *
  *  This routine provides the RTEMS interrupt management.

@@ -52,8 +52,15 @@ void _CPU_Context_Initialize(
   void *tls_area
 )
 {
+  uint32_t stack = ((uint32_t) stack_area_begin);
+  uint32_t stack_high = stack + stack_area_size;
 
+  memset(context, 0, sizeof(*context));
+
+  context->r[0] = stack_high;
+  context->r[3] = (uint32_t) entry_point;
 }
+
 /*PAGE
  *
  *  _CPU_ISR_Get_level

@@ -464,19 +464,7 @@ extern "C" {
  *  to another.
  */
 typedef struct {
-    /** This field is a hint that a port will have a number of integer
-     *  registers that need to be saved at a context switch.
-     */
-    uint32_t   some_integer_register;
-    /** This field is a hint that a port will have a number of system
-     *  registers that need to be saved at a context switch.
-     */
-    uint32_t   some_system_register;
-
-    /** This field is a hint that a port will have a register that
-     *  is the stack pointer.
-     */
-    uint32_t   stack_pointer;
+    uint32_t r[32];
 } Context_Control;
 
 /**
@@ -489,7 +477,7 @@ typedef struct {
  *  @return This method returns the stack pointer.
  */
 #define _CPU_Context_Get_SP( _context ) \
-  (_context)->stack_pointer
+  (_context)->r[0]
 
 /**
  *  @ingroup CPUContext Management
