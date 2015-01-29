@@ -28,10 +28,11 @@ REGION_ALIAS ("REGION_STACK", RAM);
 /*
  * Declare some sizes.
  */
-RamBase = DEFINED(RamBase) ? RamBase : 0x88000000;
-RamSize = DEFINED(RamSize) ? RamSize : 0x1000000;
-HeapSize = DEFINED(HeapSize) ? HeapSize : 0x0;
-StackSize = DEFINED(StackSize) ? StackSize : 0x100000;
+//RamBase = DEFINED(RamBase) ? RamBase : 0x88000000;
+//RamSize = DEFINED(RamSize) ? RamSize : 0x1000000;
+//HeapSize = DEFINED(HeapSize) ? HeapSize : 0x0;
+//StackSize = DEFINED(StackSize) ? StackSize : 0x100000;
+bsp_section_stack_begin = 0x88FFFFFC;
 
 SECTIONS
 {
@@ -94,29 +95,7 @@ SECTIONS
     CONSTRUCTORS; /* Is this needed? */
   } > REGION_RODATA AT > REGION_RODATA_LOAD
    _erodata = .;
-  /* Alignments by 8 to ensure that _SDA2_BASE_ on a word boundary */
-  /* Note that .sdata2 and .sbss2 must be contiguous */
-  . = ALIGN(8);
-   _ssrw = .;
-  .sdata2 : {
-    *(.sdata2)
-    *(.sdata2.*)
-    *(.gnu.linkonce.s2.*)
-  }
-  . = ALIGN(4);
-  .sbss2 : {
-    PROVIDE (__sbss2_start = .);
-    *(.sbss2)
-    *(.sbss2.*)
-    *(.gnu.linkonce.sb2.*)
-    PROVIDE (__sbss2_end = .);
-  }
-  . = ALIGN(8);
-   _essrw = .;
-   _ssrw_size = _essrw - _ssrw;
-   PROVIDE (_SDA2_BASE_ = _ssrw + (_ssrw_size / 2 ));
-   . = ALIGN(4);
-   _fdata = .;
+  
   .data : {
     *(.data)
     *(.gnu.linkonce.d.*)
@@ -133,6 +112,7 @@ SECTIONS
   .got2 : {
     *(.got2)
   } > REGION_RODATA AT > REGION_RODATA_LOAD
+  
   /* Added by Sathya to handle C++ exceptions */
   .eh_frame : {
     *(.eh_frame)
@@ -153,36 +133,28 @@ SECTIONS
     *(.gnu.linkonce.s.*)
   }
   . = ALIGN(4);
-  .sbss : {
-    PROVIDE (__sbss_start = .);
-    *(.sbss)
-    *(.sbss.*)
-    *(.gnu.linkonce.sb.*)
-    PROVIDE (__sbss_end = .);
-  }
+  
+  /* Alignments by 8 to ensure that _SDA2_BASE_ on a word boundary */
+  /* Note that .sdata2 and .sbss2 must be contiguous */
   . = ALIGN(8);
-   _essro = .;
-   _ssro_size = _essro - _ssro;
-  PROVIDE (_SDA_BASE_ = _ssro + (_ssro_size / 2 ));
-   . = ALIGN(4);
-   _fbss = .;
-  .bss : {
-    PROVIDE (__bss_start = .);
-    *(.bss)
-    *(.bss.*)
-    *(.gnu.linkonce.b.*)
+   _ssrw = .;
+  .sdata2 : {
+    *(.sdata2)
+    *(.sdata2.*)
+    *(.gnu.linkonce.s2.*)
+  } > REGION_BSS AT > REGION_BSS
+  . = ALIGN(4);
+   
+  .bss : ALIGN_WITH_INPUT {
+    bsp_section_bss_begin = .;
+    *(.dynbss)
+    *(.bss .bss.* .gnu.linkonce.b.* .sbss .sbss.* .gnu.linkonce.sb.*)
     *(COMMON)
-    . = ALIGN(4);
-    PROVIDE (__bss_end = .);
-  } > REGION_RODATA AT > REGION_RODATA_LOAD
-   . = ALIGN(4);
-  .stack : {
-     _stack_end = .;
-     . += StackSize;
-     . = ALIGN(8);
-     _stack = .;
-     _end = .;
-  } > REGION_DATA AT > REGION_DATA_LOAD
+    bsp_section_bss_end = .;
+  } > REGION_BSS AT > REGION_BSS
+  
+  bsp_section_bss_size = bsp_section_bss_end - bsp_section_bss_begin;
+  
   .tdata : ALIGN_WITH_INPUT {
                _TLS_Data_begin = .;
                *(.tdata .tdata.* .gnu.linkonce.td.*)
@@ -198,8 +170,27 @@ SECTIONS
        _TLS_Data_end = _TLS_Data_size != 0 ? _TLS_Data_end : _TLS_BSS_begin;
        _TLS_BSS_size = _TLS_BSS_end - _TLS_BSS_begin;
        _TLS_Size = _TLS_BSS_end - _TLS_Data_begin;
-       _TLS_Alignment = MAX (ALIGNOF (.tdata), ALIGNOF (.tbss));
-       
+       _TLS_Alignment = MAX (ALIGNOF (.tdata), ALIGNOF (.tbss));   
   . = ALIGN(8);
-  PROVIDE (WorkAreaBase = .);
+
+  .work : ALIGN_WITH_INPUT {
+    /*
+     * The work section will occupy the remaining REGION_WORK region and
+     * contains the RTEMS work space and heap.
+     */
+    bsp_section_work_begin = .;
+    . += ORIGIN (REGION_WORK) + LENGTH (REGION_WORK) - ABSOLUTE (.);
+    bsp_section_work_end = .;
+  } > REGION_WORK AT > REGION_WORK
+  bsp_section_work_size = bsp_section_work_end - bsp_section_work_begin;
+
+.stack : ALIGN_WITH_INPUT {
+    bsp_section_stack_end = .;
+  } > REGION_STACK AT > REGION_STACK
+  bsp_section_stack_size = bsp_section_stack_begin - bsp_section_stack_end;
+
+  RamBase = ORIGIN (REGION_WORK);
+  RamSize = LENGTH (REGION_WORK);
+  WorkAreaBase = bsp_section_work_begin;
+  HeapSize = 0;
 }

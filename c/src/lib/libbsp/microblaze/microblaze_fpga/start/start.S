@@ -28,7 +28,7 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   
 
-        
+        XMD load *.elf error: 
         MicroBlaze Vector Map for standalone executables
 
          Address                Vector type                 Label
@@ -82,9 +82,9 @@ _vector_hw_exception:
         .ent _start1
         .type _start1, @function   
 _start1:
-	la	r13, r0, _SDA_BASE_         /* Set the Small Data Anchors and the stack pointer */
-	la	r2, r0, _SDA2_BASE_
-	la	r1, r0, _stack-16           /* 16 bytes (4 words are needed by crtinit for args and link reg */
+	//la	r13, r0, _SDA_BASE_         /* Set the Small Data Anchors and the stack pointer */
+	//la	r2, r0, _SDA2_BASE_
+	la	r1, r0, bsp_section_stack_begin-16           /* 16 bytes (4 words are needed by crtinit for args and link reg */
 
 	brlid	r15, _crtinit               /* Initialize BSS and run program */
 	nop

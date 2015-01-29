@@ -49,6 +49,19 @@ _crtinit:
         brlid   r15, __init                     /* Invoke language initialization functions */
         nop
 #endif    
+
+
+  /* Init .bss */
+  addi  r6, r0, bsp_section_bss_begin
+  addi  r7, r0, bsp_section_bss_end
+  
+_clear_bss_loop:  
+  swi   r0, r6, 0
+  
+  addi  r6, r6, 4
+  cmpu  r8, r6, r7
+  bgti  r8, _clear_bss_loop
+  
 	addi	r6, r0, 0                       /* Initialize argc = 1 and argv = NULL and envp = NULL  */
 	addi	r7, r0, 0			
       	brlid	r15, boot_card                  /* Execute the program */
