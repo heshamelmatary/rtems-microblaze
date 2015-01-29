@@ -110,7 +110,6 @@ void XUartLite_Initialize(int minor)
 void XUartLite_SendByte(int minor, char Data)
 {
 	while (XUartLite_IsTransmitFull(UART_BASEADDRESS));
-
 	XUartLite_WriteReg(UART_BASEADDRESS, XUL_TX_FIFO_OFFSET, Data);
 }
 

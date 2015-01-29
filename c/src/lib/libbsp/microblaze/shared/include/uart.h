@@ -126,7 +126,7 @@ extern "C" {
  */
 
 #define MB_REG_READD32(_io_addr) *((volatile uint32_t *) (_io_addr))
-#define MB_REG_WRITE32(_io_addr, _data) *((volatile uint32_t *) _io_addr) = (_data)
+#define MB_REG_WRITE32(_io_addr, _data) *((volatile uint32_t *) (_io_addr)) = (_data)
 
 #define XUartLite_In32  MB_REG_READD32
 #define XUartLite_Out32 MB_REG_WRITE32
@@ -148,7 +148,7 @@ extern "C" {
 *
 ****************************************************************************/
 #define XUartLite_WriteReg(BaseAddress, RegOffset, Data) \
-	XUartLite_Out32((BaseAddress) + (RegOffset), (uint32_t)(Data))
+	XUartLite_Out32((uint32_t) (BaseAddress) + (RegOffset), (uint32_t)(Data))
 
 /****************************************************************************/
 /**

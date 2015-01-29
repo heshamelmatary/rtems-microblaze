@@ -30,7 +30,7 @@ console_tbl Console_Configuration_Ports [] = {
       .pDeviceFlow = NULL,
       .ulCtrlPort1 = UART_BASEADDRESS,
       .ulCtrlPort2 = 0,
-      .ulClock = 100000000,
+      .ulClock = 9600,
       .ulIntVector = 0
     }
 };
