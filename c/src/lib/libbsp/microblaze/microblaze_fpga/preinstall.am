@@ -78,10 +78,6 @@ $(PROJECT_INCLUDE)/bsp/stackalloc.h: ../../shared/include/stackalloc.h $(PROJECT
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/stackalloc.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/stackalloc.h
 
-$(PROJECT_INCLUDE)/bsp/console-polled.h: ../../shared/include/console-polled.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/console-polled.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/console-polled.h
-
 $(PROJECT_INCLUDE)/bsp/uart-output-char.h: ../../shared/include/uart-output-char.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/uart-output-char.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/uart-output-char.h
@@ -89,6 +85,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/uart-output-char.h
 $(PROJECT_INCLUDE)/bsp/cache_.h: ../shared/include/cache_.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/cache_.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/cache_.h
+
+$(PROJECT_INCLUDE)/bsp/uart.h: ../shared/include/uart.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/uart.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/uart.h
 
 $(PROJECT_INCLUDE)/coverhd.h: ../../shared/include/coverhd.h $(PROJECT_INCLUDE)/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/coverhd.h

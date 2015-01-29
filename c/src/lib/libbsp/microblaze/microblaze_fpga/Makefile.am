@@ -28,9 +28,9 @@ include_bsp_HEADERS += ../../shared/include/utility.h
 include_bsp_HEADERS += ../../shared/include/irq-generic.h
 include_bsp_HEADERS += ../../shared/include/irq-info.h
 include_bsp_HEADERS += ../../shared/include/stackalloc.h
-include_bsp_HEADERS += ../../shared/include/console-polled.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
 include_bsp_HEADERS += ../shared/include/cache_.h
+include_bsp_HEADERS += ../shared/include/uart.h
 
 
 nodist_include_HEADERS = ../../shared/include/coverhd.h \
@@ -77,12 +77,12 @@ libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += ../../shared/src/stackalloc.c
 
 # Console
-#libbsp_a_SOURCES += ../../shared/console.c
-#libbsp_a_SOURCES += ../../shared/console_control.c
+libbsp_a_SOURCES += ../../shared/console.c
+libbsp_a_SOURCES += ../../shared/console_control.c
 libbsp_a_SOURCES += ../../shared/console_read.c
 libbsp_a_SOURCES += ../../shared/console_select.c
 libbsp_a_SOURCES += ../../shared/console_write.c
-libbsp_a_SOURCES += ../../shared/console-polled.c
+libbsp_a_SOURCES +=  ../shared/uart/uart.c
 libbsp_a_SOURCES +=  console/console-io.c
 
 # Timer

@@ -1,63 +1,57 @@
+/**
+ * @file
+ *
+ * @ingroup microblaze_uart
+ *
+ * @brief Console Configuration.
+ */
+
 /*
- *  COPYRIGHT (c) 1989-2011.
- *  On-Line Applications Research Corporation (OAR).
+ * Copyright (c) 2015 Hesham ALMatary
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
- *
- *  $Id: console-io.c,v 1.2 2011/01/31 17:41:09 joel Exp $
+ *  http://www.rtems.org/license/LICENSE
  */
-
-#include <bsp.h>
-#include <rtems/libio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <reent.h>
-
-/*
- *  console_initialize_hardware
- *
- *  This routine initializes the console hardware.
- */
-void console_initialize_hardware(void)
-{
-}
-
-/*
- *  console_outbyte_polled
- *
- *  This routine transmits a character using polling.
- */
-void console_outbyte_polled(
-  int  port,
-  char ch
-)
-{
-  unsigned int *stat = (unsigned int *)0x40600008;
-  unsigned int *tx = (unsigned int *)0x40600004;
-
-  while ( *stat )
-    ;
-  *tx = ch;
-}
-
-/*
- *  console_inbyte_nonblocking
- *
- *  This routine polls for a character.
- */
-
-int console_inbyte_nonblocking(
-  int port
-)
-{
-  return -1;
-}
 
 #include <rtems/bspIo.h>
 
-void console_output_char(char c) { console_outbyte_polled( 0, c ); }
+#include <libchip/serial.h>
 
-BSP_output_char_function_type           BSP_output_char = console_output_char;
-BSP_polling_getchar_function_type       BSP_poll_char = NULL;
+#include <bspopts.h>
+#include <bsp/uart.h>
+
+console_tbl Console_Configuration_Ports [] = {
+    {
+      .sDeviceName = "/dev/ttyS0",
+      .deviceType = SERIAL_CUSTOM,
+      .pDeviceFns = &microblaze_uart_fns,
+      .deviceProbe = NULL,
+      .pDeviceFlow = NULL,
+      .ulCtrlPort1 = UART_BASEADDRESS,
+      .ulCtrlPort2 = 0,
+      .ulClock = 100000000,
+      .ulIntVector = 0
+    }
+};
+
+#define PORT_COUNT \
+  (sizeof(Console_Configuration_Ports) \
+    / sizeof(Console_Configuration_Ports [0]))
+
+unsigned long Console_Configuration_Count = PORT_COUNT;
+
+static void output_char(char c)
+{
+  const console_fns *con =
+    Console_Configuration_Ports [Console_Port_Minor].pDeviceFns;
+
+  if (c == '\n') {
+    con->deviceWritePolled((int) Console_Port_Minor, '\r');
+  }
+  con->deviceWritePolled((int) Console_Port_Minor, c);
+}
+
+BSP_output_char_function_type BSP_output_char = output_char;
+
+BSP_polling_getchar_function_type BSP_poll_char = NULL;
