@@ -8,7 +8,7 @@ _TEXT_START_ADDR = DEFINED(_TEXT_START_ADDR) ? _TEXT_START_ADDR : 0x88000000;
 MEMORY
   {
       BRAM     (AIW) : ORIGIN = 0x00000000, LENGTH = 0x10000
-      RAM   : ORIGIN = 0x88000000, LENGTH = 0x08000000
+      RAM   : ORIGIN = 0x88000000, LENGTH = 0x1000000
   }
 
 REGION_ALIAS ("REGION_START", BRAM);
@@ -28,10 +28,10 @@ REGION_ALIAS ("REGION_STACK", RAM);
 /*
  * Declare some sizes.
  */
-RamBase = DEFINED(RamBase) ? RamBase : 0x000000;
-RamSize = DEFINED(RamSize) ? RamSize : 0x800000;
+RamBase = DEFINED(RamBase) ? RamBase : 0x88000000;
+RamSize = DEFINED(RamSize) ? RamSize : 0x1000000;
 HeapSize = DEFINED(HeapSize) ? HeapSize : 0x0;
-StackSize = DEFINED(StackSize) ? StackSize : 0x400;
+StackSize = DEFINED(StackSize) ? StackSize : 0x100000;
 
 SECTIONS
 {
@@ -121,7 +121,7 @@ SECTIONS
     *(.data)
     *(.gnu.linkonce.d.*)
     CONSTRUCTORS; /* Is this needed? */
-  }
+  } > REGION_RODATA AT > REGION_RODATA_LOAD
    _edata = . ;
    /* Added to handle pic code */
   .got : {
