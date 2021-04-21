@@ -19,6 +19,7 @@
  *  notice.  This file is freely distributable as long as the source
  *  of the file is noted.  This file is:
  *
+ *  Copyright (c) 2015, Hesham Almatary
  *  COPYRIGHT (c) 1994-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
